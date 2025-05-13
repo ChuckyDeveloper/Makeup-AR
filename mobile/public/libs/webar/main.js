@@ -973,7 +973,7 @@ const SHAPECHEEKS = {
 
 function start() {
   WebARRocksFaceShape2DHelper.init({
-    NNCPath: "/libs/webar//neuralNets/NN_MAKEUP_2.json",
+    NNCPath: "/libs/webar/neuralNets/NN_MAKEUP_2.json",
     canvasVideo: _canvasVideo,
     canvasAR: _canvasAR,
     shapes: [SHAPELIPS, SHAPEEYES, SHAPECHEEKS],
