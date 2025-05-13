@@ -280,38 +280,84 @@ const SHAPELIPS = {
     gl_FragColor = vec4(0., 1., 0., 1.) * texture2D(samplerVideo, vUV);\n\
   }" //*/
 
-  // color with smooth border:
+  // // color with smooth border:
+  // GLSLFragmentSource:
+  //   "\n\
+  //   const vec2 ALPHARANGE = vec2(0.1, 0.6);\n\
+  //   const vec3 LUMA = 1.3 * vec3(0.299, 0.587, 0.114);\n\
+  //   \n\
+  //   float linStep(float edge0, float edge1, float x){\n\
+  //     float val = (x - edge0) / (edge1 - edge0);\n\
+  //     return clamp(val, 0.0, 1.0);\n\
+  //   }\n\
+  //   \n\
+  //   \n\
+  //   void main(void){\n\
+  //     // get grayscale video color:\n\
+  //     vec3 videoColor = texture2D(samplerVideo, vUV).rgb;\n\
+  //     vec3 videoColorGs = vec3(1., 1., 1.) * dot(videoColor, LUMA);\n\
+  //     \n\
+  //     // computer alpha:\n\
+  //     float alpha = 1.0; // no border smoothing\n\
+  //     alpha *= linStep(-1.0, -0.95, abs(iVal)); // interior\n\
+  //     alpha *= 0.5 + 0.5 * linStep(1.0, 0.6, abs(iVal)); // exterior smoothing\n\
+  //     float alphaClamped = ALPHARANGE.x + (ALPHARANGE.y - ALPHARANGE.x) * alpha;\n\
+  //     \n\
+  //     // mix colors:\n\
+  //     vec3 color = videoColorGs * lipstickColor;\n\
+  //     gl_FragColor = vec4(color*alphaClamped, alphaClamped);\n\
+  //     \n\
+  //     // DEBUG ZONE:\n\
+  //     //gl_FragColor = vec4(0., alpha, 0., 1.0);\n\
+  //     //gl_FragColor = vec4(alpha, alpha, alphaClamped, 1.0);\n\
+  //     //gl_FragColor = vec4(0., 1., 0., 1.);\n\
+  //   }",
   GLSLFragmentSource:
     "\n\
-    const vec2 ALPHARANGE = vec2(0.1, 0.6);\n\
-    const vec3 LUMA = 1.3 * vec3(0.299, 0.587, 0.114);\n\
+  const vec3 LUMA = vec3(0.299, 0.587, 0.114);\n\
+  \n\
+  float linStep(float edge0, float edge1, float x){\n\
+    float val = (x - edge0) / (edge1 - edge0);\n\
+    return clamp(val, 0.0, 1.0);\n\
+  }\n\
+  \n\
+  void main(void){\n\
+    vec3 videoColor = texture2D(samplerVideo, vUV).rgb;\n\
+    float brightness = dot(videoColor, LUMA);\n\
     \n\
-    float linStep(float edge0, float edge1, float x){\n\
-      float val = (x - edge0) / (edge1 - edge0);\n\
-      return clamp(val, 0.0, 1.0);\n\
-    }\n\
+    // blend แบบใช้ brightness ของปากจริง มาผสมเข้ากับ lipstickColor\n\
+    vec3 naturalBlend = lipstickColor * (0.6 + brightness * 0.4);\n\
     \n\
+    // alpha แบบเนียนๆ เหมือนลิป\n\
+    float alpha = linStep(-1.0, -0.95, abs(iVal)) * linStep(1.0, 0.6, abs(iVal));\n\
+    alpha = clamp(alpha, 0.8, 0.9);\n\
     \n\
-    void main(void){\n\
-      // get grayscale video color:\n\
-      vec3 videoColor = texture2D(samplerVideo, vUV).rgb;\n\
-      vec3 videoColorGs = vec3(1., 1., 1.) * dot(videoColor, LUMA);\n\
-      \n\
-      // computer alpha:\n\
-      float alpha = 1.0; // no border smoothing\n\
-      alpha *= linStep(-1.0, -0.95, abs(iVal)); // interior\n\
-      alpha *= 0.5 + 0.5 * linStep(1.0, 0.6, abs(iVal)); // exterior smoothing\n\
-      float alphaClamped = ALPHARANGE.x + (ALPHARANGE.y - ALPHARANGE.x) * alpha;\n\
-      \n\
-      // mix colors:\n\
-      vec3 color = videoColorGs * lipstickColor;\n\
-      gl_FragColor = vec4(color*alphaClamped, alphaClamped);\n\
-      \n\
-      // DEBUG ZONE:\n\
-      //gl_FragColor = vec4(0., alpha, 0., 1.0);\n\
-      //gl_FragColor = vec4(alpha, alpha, alphaClamped, 1.0);\n\
-      //gl_FragColor = vec4(0., 1., 0., 1.);\n\
-    }",
+    // mix ท้ายสุดให้กลืนกับปากจริง (soft overlay)\n\
+    vec3 finalColor = mix(videoColor, naturalBlend, 0.85);\n\
+    \n\
+    gl_FragColor = vec4(finalColor, alpha);\n\
+  }",
+
+  // GLSLFragmentSource:
+  //   "\n\
+  // float linStep(float edge0, float edge1, float x){\n\
+  //   float val = (x - edge0) / (edge1 - edge0);\n\
+  //   return clamp(val, 0.0, 1.0);\n\
+  // }\n\
+  // \n\
+  // void main(void){\n\
+  //   vec3 videoColor = texture2D(samplerVideo, vUV).rgb;\n\
+  //   \n\
+  //   // ผสมสีแบบลิปจริง (soft overlay)\n\
+  //   vec3 blended = mix(videoColor, lipstickColor, 0.85);\n\
+  //   \n\
+  //   // alpha soft เหมือนลิปกลอสหรือทินท์\n\
+  //   float alpha = linStep(-1.0, -0.95, abs(iVal)) * linStep(1.0, 0.6, abs(iVal));\n\
+  //   alpha = clamp(alpha, 0.8, 0.85);\n\
+  //   \n\
+  //   gl_FragColor = vec4(blended, alpha);\n\
+  // }",
+
   uniforms: [
     {
       name: "lipstickColor",
@@ -351,10 +397,10 @@ function main() {
 }
 
 function change_lipstickColor(color, event) {
-  _selectedDOMColorButton.classList.remove("controlButtonSelected");
-  const domLink = event.target;
-  domLink.classList.add("controlButtonSelected");
-  _selectedDOMColorButton = domLink;
+  // _selectedDOMColorButton.classList.remove("controlButtonSelected");
+  // const domLink = event.target;
+  // domLink.classList.add("controlButtonSelected");
+  // _selectedDOMColorButton = domLink;
   WebARRocksFaceShape2DHelper.set_uniformValue("LIPS", "lipstickColor", color);
 }
 
