@@ -1,6 +1,6 @@
 <template>
   <div
-    class="mx-auto lg:max-w-sm flex flex-col items-center h-screen justify-center select-none"
+    class="mx-auto lg:max-w-lg flex flex-col items-center h-screen justify-center select-none p-2 lg:p-0 -mt-10 lg:mt-0"
   >
     <div class="w-full">
       <!-- 1) กล่องครอบ video + canvas -->
