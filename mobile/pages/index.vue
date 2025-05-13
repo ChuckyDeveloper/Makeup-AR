@@ -290,8 +290,22 @@ function selectColor(color, data) {
 
   // changeColor([0.0, 0.0, 1.0]);
   const rgb = hexToRgbArray(color);
-
   changeColor(rgb);
+}
+
+function resetLabel(color = "#000000") {
+  if (state.makup_main_product == "lipstick") {
+    state.colorLipstick = color;
+    changeColor([0, 0, 0]);
+  } else if (state.makup_main_product == "lipliner") {
+    state.colorLipliner = color;
+  } else if (state.makup_main_product == "foundation") {
+    state.colorFoundation = color;
+  } else if (state.makup_main_product == "Concealer") {
+    state.colorConsealer = color;
+  } else if (state.makup_main_product == "blush") {
+    state.colorBlush = color;
+  }
 }
 
 // Helper แปลง HEX เป็น RGB 0-1 array
@@ -363,18 +377,5 @@ body,
 #WebARRocksFaceCanvasAR {
   z-index: 1;
   pointer-events: none;
-}
-
-#colorRed {
-  background: #ff0000;
-}
-#colorBlue {
-  background: #5555ff;
-}
-#colorYellow {
-  background: #333333;
-}
-.controlButtonSelected {
-  transform: scale(1.2);
 }
 </style>

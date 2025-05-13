@@ -312,31 +312,31 @@ const SHAPELIPS = {
   //     //gl_FragColor = vec4(alpha, alpha, alphaClamped, 1.0);\n\
   //     //gl_FragColor = vec4(0., 1., 0., 1.);\n\
   //   }",
-  GLSLFragmentSource:
-    "\n\
-  const vec3 LUMA = vec3(0.299, 0.587, 0.114);\n\
-  \n\
-  float linStep(float edge0, float edge1, float x){\n\
-    float val = (x - edge0) / (edge1 - edge0);\n\
-    return clamp(val, 0.0, 1.0);\n\
-  }\n\
-  \n\
-  void main(void){\n\
-    vec3 videoColor = texture2D(samplerVideo, vUV).rgb;\n\
-    float brightness = dot(videoColor, LUMA);\n\
-    \n\
-    // blend แบบใช้ brightness ของปากจริง มาผสมเข้ากับ lipstickColor\n\
-    vec3 naturalBlend = lipstickColor * (0.6 + brightness * 0.4);\n\
-    \n\
-    // alpha แบบเนียนๆ เหมือนลิป\n\
-    float alpha = linStep(-1.0, -0.95, abs(iVal)) * linStep(1.0, 0.6, abs(iVal));\n\
-    alpha = clamp(alpha, 0.8, 0.9);\n\
-    \n\
-    // mix ท้ายสุดให้กลืนกับปากจริง (soft overlay)\n\
-    vec3 finalColor = mix(videoColor, naturalBlend, 0.85);\n\
-    \n\
-    gl_FragColor = vec4(finalColor, alpha);\n\
-  }",
+  // GLSLFragmentSource:
+  //   "\n\
+  // const vec3 LUMA = vec3(0.299, 0.587, 0.114);\n\
+  // \n\
+  // float linStep(float edge0, float edge1, float x){\n\
+  //   float val = (x - edge0) / (edge1 - edge0);\n\
+  //   return clamp(val, 0.0, 1.0);\n\
+  // }\n\
+  // \n\
+  // void main(void){\n\
+  //   vec3 videoColor = texture2D(samplerVideo, vUV).rgb;\n\
+  //   float brightness = dot(videoColor, LUMA);\n\
+  //   \n\
+  //   // blend แบบใช้ brightness ของปากจริง มาผสมเข้ากับ lipstickColor\n\
+  //   vec3 naturalBlend = lipstickColor * (0.6 + brightness * 0.4);\n\
+  //   \n\
+  //   // alpha แบบเนียนๆ เหมือนลิป\n\
+  //   float alpha = linStep(-1.0, -0.95, abs(iVal)) * linStep(1.0, 0.6, abs(iVal));\n\
+  //   alpha = clamp(alpha, 0.8, 0.9);\n\
+  //   \n\
+  //   // mix ท้ายสุดให้กลืนกับปากจริง (soft overlay)\n\
+  //   vec3 finalColor = mix(videoColor, naturalBlend, 0.85);\n\
+  //   \n\
+  //   gl_FragColor = vec4(finalColor, alpha);\n\
+  // }",
 
   // GLSLFragmentSource:
   //   "\n\
@@ -358,10 +358,36 @@ const SHAPELIPS = {
   //   gl_FragColor = vec4(blended, alpha);\n\
   // }",
 
+  GLSLFragmentSource:
+    "\n\
+  float linStep(float edge0, float edge1, float x){\n\
+    float val = (x - edge0) / (edge1 - edge0);\n\
+    return clamp(val, 0.0, 1.0);\n\
+  }\n\
+  \n\
+  void main(void){\n\
+    vec3 videoColor = texture2D(samplerVideo, vUV).rgb;\n\
+    \n\
+    // ตรวจสอบถ้า lipstickColor เป็น [0,0,0] = ยังไม่ต้องแสดงลิป\n\
+    if (lipstickColor.r == 0.0 && lipstickColor.g == 0.0 && lipstickColor.b == 0.0){\n\
+      gl_FragColor = vec4(videoColor, 1.0);\n\
+    } else {\n\
+      // ผสมสีแบบลิปสติกจริง (เนียน นุ่ม + เงา)\n\
+      vec3 blended = mix(videoColor, lipstickColor, 0.85);\n\
+      blended = blended * 1.05; // ดันความสว่างเล็กน้อยให้ดูเหมือนเงาลิป\n\
+      \n\
+      // alpha แบบ soft ขอบเบลอเล็กน้อย\n\
+      float alpha = linStep(-1.0, -0.95, abs(iVal)) * linStep(1.0, 0.6, abs(iVal));\n\
+      alpha = clamp(alpha, 0.8, 0.85);\n\
+      \n\
+      gl_FragColor = vec4(blended, alpha);\n\
+    }\n\
+  }",
+
   uniforms: [
     {
       name: "lipstickColor",
-      value: [1, 0, 0.3],
+      value: [0, 0, 0],
     },
   ],
 }; //end SHAPELIPS
