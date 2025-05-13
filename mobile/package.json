@@ -1,0 +1,53 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "deploy": "nuxt generate && firebase deploy"
+  },
+  "devDependencies": {
+    "@nuxtjs/device": "^3.1.1",
+    "@samk-dev/nuxt-vcalendar": "^1.0.4",
+    "@stefanobartoletti/nuxt-social-share": "^0.5.2",
+    "autoprefixer": "^10.4.17",
+    "nuxt": "^3.9.3",
+    "nuxt-aos": "^1.2.2",
+    "nuxt-headlessui": "^1.1.5",
+    "nuxt-icon": "^0.6.8",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "vue": "^3.4.14",
+    "vue-router": "^4.2.5"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.7.19",
+    "@mediapipe/camera_utils": "^0.3.1675466862",
+    "@mediapipe/face_mesh": "^0.4.1633559619",
+    "@pinia/nuxt": "^0.5.1",
+    "@tensorflow-models/face-landmarks-detection": "^1.0.6",
+    "@tensorflow/tfjs": "^4.22.0",
+    "@vueform/slider": "^2.1.10",
+    "@vueuse/core": "^13.0.0",
+    "chart.js": "^4.4.2",
+    "face-api.js": "^0.22.2",
+    "file-saver": "^2.0.5",
+    "openai": "^4.87.3",
+    "pinia": "^2.1.7",
+    "qrcode-vue3": "^1.6.8",
+    "qrcode.vue": "^3.4.1",
+    "sweetalert2": "^11.15.10",
+    "three": "^0.174.0",
+    "vue-3-slider-component": "^0.1.4",
+    "vue-awesome-paginate": "^1.1.46",
+    "vue-chartjs": "^5.3.0",
+    "vue-color": "^2.8.1",
+    "vue-material-design-icons": "^5.3.0",
+    "vue-responsive-video-background-player": "^2.3.1",
+    "vue-social-sharing": "^4.0.0-alpha4"
+  }
+}
